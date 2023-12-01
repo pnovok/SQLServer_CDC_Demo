@@ -78,7 +78,7 @@ VALUES
 GO
 ```
 
-##Lab 2 – Creating SQL Server table in SSB
+## Lab 2 – Creating SQL Server table in SSB
 
 You need to let SSB know the source table to capture changes from. SSB comes with the set of templates that you can use to create various CDC tables as shown below.
 Create a new job in SSB, click the Templates drop down menu and choose sqlserver-cdc. You can modify you table DDL per example below.
@@ -112,7 +112,7 @@ Run the code by executing the job and you should see the new virtual table defin
 
 ![img_3.png](Images/img_3.png)
 
-##Lab 3 - Capturing Database Changes
+## Lab 3 - Capturing Database Changes
 
 Once you've created a virtual CDC table, you can select from it by running a simple select statement in SSB job. When you change rows in the source SQL Server table or add new ones the changed rows will be visible in SSB UI, as shown below.
 
@@ -135,7 +135,7 @@ VALUES
 update Customers set Email='john_smith@gmail.com' where CustomerId=10;
 ```
 
-##Lab 4 - Replicating Database Changes
+## Lab 4 - Replicating Database Changes
 
 Now, let's create a target ***customers_replica*** Postgres table where we would replicate changes performed on the original MS SQL Server table. Logon to Postgres and run the following commands. You can install a Postgres client of your choice. 
 I'm using psql installed locally on my Mac. Another option would be to use PGADMIN tool.
