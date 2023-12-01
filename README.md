@@ -11,8 +11,7 @@ The overall demo architecture is presented on the diagram below.
 
 ## Deploying database servers
 
-It is fairly easy to deploy new database instances in RDS. Make sure that your database instances are Publicly Accessible. Change data capture feature is only available in the Enterprise, Developer, Enterprise Evaluation, and Standard editions,
-so SQL Server Express edtion can't be used for CDC. Once the database instance is deployed, you need to capture the endpoint, a port number (1433), as well as the username and password to connect to the instance. Security Group inbound rules should 
+It is fairly easy to deploy new database instances in RDS. Make sure that your database instances are Publicly Accessible. For SQL Server Change data capture feature is only available in the Enterprise, Developer, Enterprise Evaluation, and Standard editions. Once the database instance is deployed, you need to capture the endpoint, a port number (1433), as well as the username and password to connect to the instance. Security Group inbound rules should 
 allow traffic for database ports 1433 and 5432, as shown below.
 
 ![img_10.png](Images/img_10.png)
@@ -199,7 +198,7 @@ You should see the new table in SSB UI as shown below.
 
 ![img_5.png](Images/img_5.png)
 
-Now we're ready to replicate changes from SQL Server to Postgres by running a simple INSERT/SELECT job in SSB UI. Create and run a new job in SSB UI. As simple as that.
+Now we're ready to replicate changes from SQL Server to Postgres by running a simple INSERT/SELECT job in SSB UI. Create and run a new job in SSB UI. 
 
 ```
 insert into customers_cdc_replica select * from customers_cdc;
@@ -211,7 +210,7 @@ You should see database changes in the SSB UI and by selecting from the Postgres
 
 ![img_7.png](Images/img_7.png)
 
-Let's update table records on the SQL Server side and observe changes in Postgres. The new row was added and updated on the SQL Server side and replicated to Postgres. 
+Let's update table records on the SQL Server side and observe changes in Postgres by selecting fromthe **customers_replica** table.
 
 ```
 INSERT INTO dbo.Customers (
