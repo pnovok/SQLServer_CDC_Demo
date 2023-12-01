@@ -7,7 +7,7 @@ MS SQL Server and Postgres instances are running on AWS RDS Relational Database 
 
 The overall demo architecture is presented on the diagram below. 
 
-![img_9.png](img_9.png)
+![img_9.png](Images/img_9.png)
 
 ## Deploying database servers
 
@@ -15,7 +15,7 @@ It is fairly easy to deploy new database instances in RDS. Make sure that your d
 so SQL Server Express edtion can't be used for CDC. Once the database instance is deployed, you need to capture the endpoint, a port number (1433), as well as the username and password to connect to the instance. Security Group inbound rules should 
 allow traffic for database ports 1433 and 5432, as shown below.
 
-![img_10.png](img_10.png)
+![img_10.png](Images/img_10.png)
 
 ## Lab 1 – Creating a SQL Server database table
 
@@ -83,7 +83,7 @@ GO
 You need to let SSB know the source table to capture changes from. SSB comes with the set of templates that you can use to create various CDC tables as shown below.
 Create a new job in SSB, click the Templates drop down menu and choose sqlserver-cdc. You can modify you table DDL per example below.
 
-![img_2.png](img_2.png)
+![img_2.png](Images/img_2.png)
 
   
 
@@ -110,14 +110,14 @@ CREATE TABLE  `customers_cdc` (
 
 Run the code by executing the job and you should see the new virtual table definition as shown below.
 
-![img_3.png](img_3.png)
+![img_3.png](Images/img_3.png)
 
 ##Lab 3 - Capturing Database Changes
 
 Once you've created a virtual CDC table, you can select from it by running a simple select statement in SSB job. When you change rows in the source SQL Server table or add new ones the changed rows will be visible in SSB UI, as shown below.
 
 
-![img_4.png](img_4.png)
+![img_4.png](Images/img_4.png)
 
 Run a few SQL commands in Azure Data Studio to update database rows or insert new ones. 
 
@@ -197,7 +197,7 @@ PRIMARY KEY (`customerid`) NOT ENFORCED
 
 You should see the new table in SSB UI as shown below.
 
-![img_5.png](img_5.png)
+![img_5.png](Images/img_5.png)
 
 Now we're ready to replicate changes from SQL Server to Postgres by running a simple INSERT/SELECT job in SSB UI. Create and run a new job in SSB UI. As simple as that.
 
@@ -205,11 +205,11 @@ Now we're ready to replicate changes from SQL Server to Postgres by running a si
 insert into customers_cdc_replica select * from customers_cdc;
 ```
 
-![img_6.png](img_6.png)
+![img_6.png](Images/img_6.png)
 
 You should see database changes in the SSB UI and by selecting from the Postgres table itself.
 
-![img_7.png](img_7.png)
+![img_7.png](Images/img_7.png)
 
 Let's update table records on the SQL Server side and observe changes in Postgres. The new row was added and updated on the SQL Server side and replicated to Postgres. 
 
@@ -226,7 +226,7 @@ VALUES
 update Customers set Email='gary23@gmail.com' where CustomerId=11;
 ```
 
-![img_8.png](img_8.png)
+![img_8.png](Images/img_8.png)
 
 Let's remove the row that was inserted above on the SQL Server side and check that the same row was deleted from Postgres.
 
