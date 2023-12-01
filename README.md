@@ -234,4 +234,4 @@ Let's remove the row that was inserted above on the SQL Server side and check th
 delete from Customers where CustomerId=11;
 ```
 
-![img.png](img.png)
+![img.png](Images/img.png)
