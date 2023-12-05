@@ -5,9 +5,9 @@ The purpose of this demo is to setup Change Data Capture (CDC) Replication for M
 
 MS SQL Server and Postgres instances are running on AWS RDS Relational Database service, while Flink/SQl Stream Builder is deployed on the Cloudera CDP Public Cloud cluster. 
 
-The overall demo architecture is presented on the diagram below. 
+The overall demo architecture is presented on the diagram below.
+![img.png](Images/img_9.png)
 
-![img_9.png](Images/img_9.png)
 
 ## Deploying database servers
 
@@ -22,45 +22,40 @@ I used Azure Data Studio to connect to the SQL Server instance, create and popul
 
 ```
 USE master;
-GO
 
 IF NOT EXISTS (
 SELECT name
 FROM sys.databases
-WHERE name = N'TutorialDB'
+WHERE name = 'TutorialDB'
 )
 CREATE DATABASE [TutorialDB];
-GO
 
 IF SERVERPROPERTY('ProductVersion') > '12'
 ALTER DATABASE [TutorialDB] SET QUERY_STORE = ON;
-GO
 
 -- Create a new table called 'Customers' in schema 'dbo'
 -- Drop the table if it already exists
 IF OBJECT_ID('dbo.Customers', 'U') IS NOT NULL
 DROP TABLE dbo.Customers;
-GO
 
 -- Create the table in the specified schema
 CREATE TABLE dbo.Customers (
 CustomerId INT NOT NULL PRIMARY KEY, -- primary key column
-[Name] NVARCHAR(50) NOT NULL,
-[Location] NVARCHAR(50) NOT NULL,
-[Email] NVARCHAR(50) NOT NULL
+[Name] VARCHAR(50) NOT NULL,
+[Location] VARCHAR(50) NOT NULL,
+[Email] VARCHAR(50) NOT NULL
 );
-GO
 
 USE TutorialDB;
 
 --Enable CDC for RDS DB Instance
-exec msdb.dbo.rds_cdc_enable_db '<database name>'
+exec msdb.dbo.rds_cdc_enable_db 'TutorialDB'
 
 --Begin tracking a table
 exec sys.sp_cdc_enable_table   
-@source_schema           = N'dbo'
-,  @source_name             = N'Customers'
-,  @role_name               = N'public'
+@source_schema           = 'dbo'
+,  @source_name             = 'Customers'
+,  @role_name               = 'public'
 
 -- Insert rows into table 'Customers'
 INSERT INTO dbo.Customers (
@@ -70,11 +65,11 @@ INSERT INTO dbo.Customers (
 [Email]
 )
 VALUES
-(1, N'Orlando', N'Australia', N''),
-(2, N'Keith', N'India', N'keith0@adventure-works.com'),
-(3, N'Donna', N'Germany', N'donna0@adventure-works.com'),
-(4, N'Janet', N'United States', N'janet1@adventure-works.com')
-GO
+(1, 'Orlando', 'Australia', ''),
+(2, 'Keith', 'India', 'keith0@adventure-works.com'),
+(3, 'Donna', 'Germany', 'donna0@adventure-works.com'),
+(4, 'Janet', 'United States', 'janet1@adventure-works.com')
+
 ```
 
 ## Lab 2 – Creating SQL Server table in SSB
@@ -129,12 +124,12 @@ INSERT INTO dbo.Customers (
    [Email]
 )
 VALUES
-   (10, N'John', N'Ireland', N'');
+   (5, 'John', 'Ireland', '');
 
-update Customers set Email='john_smith@gmail.com' where CustomerId=10;
+update Customers set Email='john_smith@gmail.com' where CustomerId=5;
 ```
 
-## Lab 4 - Replicating Database Changes
+## Lab 4 - Replicating Database Changes to Postgres
 
 Now, let's create a target ***customers_replica*** Postgres table where we would replicate changes performed on the original MS SQL Server table. Logon to Postgres and run the following commands. You can install a Postgres client of your choice. 
 I'm using psql installed locally on my Mac. Another option would be to use PGADMIN tool.
@@ -220,9 +215,9 @@ INSERT INTO dbo.Customers (
    [Email]
 )
 VALUES
-   (11, N'Garry', N'Italy', N'');
+   (6, 'Garry', 'Italy', '');
 
-update Customers set Email='gary23@gmail.com' where CustomerId=11;
+update Customers set Email='gary23@gmail.com' where CustomerId=6;
 ```
 
 ![img_8.png](Images/img_8.png)
@@ -230,7 +225,10 @@ update Customers set Email='gary23@gmail.com' where CustomerId=11;
 Let's remove the row that was inserted above on the SQL Server side and check that the same row was deleted from Postgres.
 
 ```
-delete from Customers where CustomerId=11;
+delete from Customers where CustomerId=6;
 ```
 
 ![img.png](Images/img.png)
+
+## Lab 5 - Replicating Database Changes to Hive
+
