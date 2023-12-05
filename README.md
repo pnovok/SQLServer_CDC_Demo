@@ -1,6 +1,6 @@
 # MS SQL Server Change Data Capture (CDC) Demo
 
-MS SQL Server is a very popular database in the corporate world. Cloudera's SQL Stream Builder/SSB product comes with several Debezium CDC connectors (for MS SQL Server, Postgres, Oracle and DB2) which allow capturing database changes, processing and routing those changes using Flink SQL into various target sinks including Postgres, MySQL, Hive, Kafka and etc. 
+MS SQL Server is one of the most popular databases in the corporate world. Cloudera's SQL Stream Builder/SSB product comes with several Debezium CDC connectors (for MS SQL Server, Postgres, Oracle and DB2) which allow capturing database changes, processing and routing those changes using Flink SQL into various target sinks including Postgres, MySQL, Hive, Kafka and etc. 
 The purpose of this demo is to setup Change Data Capture (CDC) Replication for MS SQL Server instance using SQL Stream Builder (SSB)/Flink and send those changes into another database (Postgres). 
 
 MS SQL Server and Postgres instances are running on AWS RDS Relational Database service, while Flink/SQl Stream Builder is deployed on the Cloudera CDP Public Cloud cluster. 
