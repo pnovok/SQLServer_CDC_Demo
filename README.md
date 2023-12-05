@@ -1,9 +1,9 @@
 # MS SQL Server Change Data Capture (CDC) Demo
 
 MS SQL Server is one of the most popular databases in the corporate world. Cloudera's SQL Stream Builder/SSB product comes with several Debezium CDC connectors (for MS SQL Server, Postgres, Oracle and DB2) which allow capturing database changes, processing and routing those changes using Flink SQL into various target sinks including Postgres, MySQL, Hive, Kafka and etc. 
-The purpose of this demo is to setup Change Data Capture (CDC) Replication for MS SQL Server instance using SQL Stream Builder (SSB)/Flink and send those changes into another database (Postgres). 
+The purpose of this demo is to setup Change Data Capture (CDC) Replication for MS SQL Server instance using SQL Stream Builder (SSB)/Flink and send those changes into Postgres and Hive. 
 
-MS SQL Server and Postgres instances are running on AWS RDS Relational Database service, while Flink/SQl Stream Builder is deployed on the Cloudera CDP Public Cloud cluster. 
+MS SQL Server and Postgres instances are running on AWS RDS (Relational Database service), while Flink/SQl Stream Builder and Hive are deployed on the Cloudera CDP Public Cloud. 
 
 The overall demo architecture is presented on the diagram below.
 ![img.png](Images/img_9.png)
@@ -11,7 +11,7 @@ The overall demo architecture is presented on the diagram below.
 
 ## Deploying database servers
 
-It is fairly easy to deploy new database instances in RDS. Make sure that your database instances are Publicly Accessible. For SQL Server Change data capture feature is only available in the Enterprise, Developer, Enterprise Evaluation, and Standard editions. Once the database instance is deployed, you need to capture the endpoint, a port number (1433), as well as the username and password to connect to the instance. Security Group inbound rules should 
+It is fairly easy to deploy new database instances in Amazon RDS. Make sure that your database instances are Publicly Accessible. For SQL Server, Change Data Capture feature is only available in the Enterprise, Developer, Enterprise Evaluation, and Standard editions. Once the database instance is deployed, you need to note the endpoint, a port number (1433), as well as the username and password to connect to the instance. Security Group inbound rules should 
 allow traffic for database ports 1433 and 5432, as shown below.
 
 ![img_10.png](Images/img_10.png)
@@ -108,7 +108,7 @@ Run the code by executing the job and you should see the new virtual table defin
 
 ## Lab 3 - Capturing Database Changes
 
-Once you've created a virtual CDC table, you can select from it by running a simple select statement in SSB job. When you change rows in the source SQL Server table or add new ones the changed rows will be visible in SSB UI, as shown below.
+Once you've created a virtual CDC table, you can select from it by running a simple SELECT statement in SSB job. When you change rows in the source SQL Server table or add new ones the changed rows will be visible in SSB UI, as shown below.
 
 
 ![img_4.png](Images/img_4.png)
