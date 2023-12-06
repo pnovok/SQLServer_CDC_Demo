@@ -1,0 +1,24 @@
+{
+  "metadata" : {
+    "schema.0.data-type" : "INT",
+    "schema.2.name" : "Location",
+    "schema.1.name" : "Name",
+    "schema.1.data-type" : "VARCHAR(2147483647)",
+    "schema.3.data-type" : "VARCHAR(2147483647)",
+    "hostname" : "pnovoksh-sqlserver-db.cx9bqfeps2qo.us-east-2.rds.amazonaws.com",
+    "password" : "Cloudera123",
+    "debezium.snapshot.mode" : "initial",
+    "connector" : "sqlserver-cdc",
+    "schema.2.data-type" : "VARCHAR(2147483647)",
+    "schema.3.name" : "Email",
+    "port" : "1433",
+    "database-name" : "TutorialDB",
+    "schema-name" : "dbo",
+    "table-name" : "Customers",
+    "username" : "admin",
+    "schema.0.name" : "CustomerId"
+  },
+  "type" : "ssb",
+  "table_name" : "customers_cdc",
+  "transform_code_b64_encoded" : false
+}

@@ -1,0 +1,32 @@
+{
+  "job_name" : "CreateReplicaCDCTable_Hive",
+  "api_endpoints" : [ ],
+  "sql" : "DROP TABLE IF EXISTS `customers_cdc_replica`;\nCREATE TABLE  `customers_cdc_replica` (\n `customerid` INT,\n  `name` VARCHAR(2147483647),\n  `location` VARCHAR(2147483647),\n  `email` VARCHAR(2147483647),\n   PRIMARY KEY (`customerid`) NOT ENFORCED\n) WITH (\n  'connector' = 'jdbc', -- Specify what connector to use, for JDBC it must be 'jdbc'.\n  'table-name' = 'customers_replica', -- The name of JDBC table to connect.\n  'url' = 'jdbc:hive2://hs2-default-hive-aws.dw-go01-demo-aws.ylcu-atmi.cloudera.site/default;transportMode=http;httpPath=cliservice;socketTimeout=60;ssl=true;retries=3;', -- The JDBC database URL.\n  -- 'connection.max-retry-timeout' = '1 min' -- Maximum timeout between retries. The timeout should be in second granularity and shouldn't be smaller than 1 second.\n  -- 'driver' = '...' -- The class name of the JDBC driver to use to connect to this URL, if not set, it will automatically be derived from the URL.\n  -- 'lookup.cache.max-rows' = '...' -- The max number of rows of lookup cache, over this value, the oldest rows will be expired. Lookup cache is disabled by default.\n  -- 'lookup.cache.ttl' = '...' -- The max time to live for each rows in lookup cache, over this time, the oldest rows will be expired. Lookup cache is disabled by default.\n  -- 'lookup.max-retries' = '3' -- The max retry times if lookup database failed.\n   'password' = 'password', -- The JDBC password.\n  -- 'scan.auto-commit' = 'true' -- Sets the auto-commit flag on the JDBC driver, which determines whether each statement is committed in a transaction automatically. Some JDBC drivers, specifically Postgres, may require this to be set to false in order to stream results.\n  -- 'scan.fetch-size' = '0' -- The number of rows that should be fetched from the database when reading per round trip. If the value specified is zero, then the hint is ignored.\n  -- 'scan.partition.column' = '...' -- The column name used for partitioning the input.\n  -- 'scan.partition.lower-bound' = '...' -- The smallest value of the first partition.\n  -- 'scan.partition.num' = '...' -- The number of partitions.\n  -- 'scan.partition.upper-bound' = '...' -- The largest value of the last partition.\n  -- 'sink.buffer-flush.interval' = '1 s' -- The flush interval mills, over this time, asynchronous threads will flush data. Can be set to '0' to disable it. Note, 'sink.buffer-flush.max-rows' can be set to '0' with the flush interval set allowing for complete async processing of buffered actions.\n  -- 'sink.buffer-flush.max-rows' = '100' -- The max size of buffered records before flush. Can be set to zero to disable it.\n  -- 'sink.max-retries' = '3' -- The max retry times if writing records to database failed.\n  -- 'sink.parallelism' = '...' -- Defines the parallelism of the JDBC sink operator. By default, the parallelism is determined by the framework using the same parallelism of the upstream chained operator.\n  'username' = 'pnovokshonov' -- The JDBC user name. 'username' and 'password' must both be specified if any of them is specified.\n);\n\n",
+  "mv_config" : {
+    "name" : "CreateReplicaCDCTable_Hive",
+    "retention" : 300,
+    "min_row_retention_count" : 0,
+    "recreate" : false,
+    "key_column_name" : null,
+    "column_indices_disabled" : false,
+    "indexed_columns" : [ ],
+    "not_indexed_columns" : [ ],
+    "api_key" : null,
+    "ignore_nulls" : false,
+    "require_restart" : false,
+    "batch_size" : 0,
+    "enabled" : false
+  },
+  "runtime_config" : {
+    "execution_mode" : "SESSION",
+    "parallelism" : 1,
+    "sample_interval" : 1000,
+    "sample_count" : 100,
+    "window_size" : 100,
+    "start_with_savepoint" : false,
+    "log_config" : {
+      "type" : "LOG4J_PROPERTIES",
+      "content" : "\nrootLogger.level = INFO\nrootLogger.appenderRef.file.ref = MainAppender\n#Uncomment this if you want to _only_ change Flink's logging\n#logger.flink.name = org.apache.flink\n#logger.flink.level = INFO\n\n# The following lines keep the log level of common libraries/connectors on\n# log level INFO. The root logger does not override this. You have to manually\n# change the log levels here.\nlogger.akka.name = akka\nlogger.akka.level = INFO\nlogger.kafka.name= org.apache.kafka\nlogger.kafka.level = INFO\nlogger.hadoop.name = org.apache.hadoop\nlogger.hadoop.level = INFO\nlogger.zookeeper.name = org.apache.zookeeper\nlogger.zookeeper.level = INFO\n\n# Log all infos in the given file\nappender.main.name = MainAppender\nappender.main.type = File\nappender.main.append = false\nappender.main.fileName = /var/log/ssb\nappender.main.layout.type = PatternLayout\nappender.main.layout.pattern = %d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %-60c %x - %m%n\n\n# Suppress the irrelevant (wrong) warnings from the Netty channel handler\nlogger.netty.name = org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline\nlogger.netty.level = OFF\n"
+    }
+  }
+}

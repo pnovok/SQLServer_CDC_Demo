@@ -1,0 +1,22 @@
+{
+  "metadata" : {
+    "schema.0.data-type" : "INT NOT NULL",
+    "schema.2.name" : "location",
+    "schema.1.name" : "name",
+    "url" : "jdbc:hive2://hs2-default-hive-aws.dw-go01-demo-aws.ylcu-atmi.cloudera.site/default;transportMode=http;httpPath=cliservice;socketTimeout=60;ssl=true;retries=3;",
+    "schema.1.data-type" : "VARCHAR(2147483647)",
+    "schema.3.data-type" : "VARCHAR(2147483647)",
+    "password" : "@Cloudera2021",
+    "connector" : "jdbc",
+    "schema.2.data-type" : "VARCHAR(2147483647)",
+    "schema.3.name" : "email",
+    "schema.primary-key.name" : "PK_-1581183592",
+    "schema.primary-key.columns" : "customerid",
+    "table-name" : "customers_replica",
+    "username" : "pnovokshonov",
+    "schema.0.name" : "customerid"
+  },
+  "type" : "ssb",
+  "table_name" : "customers_cdc_replica",
+  "transform_code_b64_encoded" : false
+}
