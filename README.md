@@ -10,7 +10,7 @@ The overall demo architecture is presented on the diagram below.
 ![img.png](Images/img_9.png)
 
 
-## Deploying database servers
+## 1 - Deploying database servers
 
 It's very easy to deploy new database instances in Amazon RDS. Make sure that your database instances are Publicly Accessible. For SQL Server, Change Data Capture feature is only available in the Enterprise, Developer, Enterprise Evaluation, and Standard editions. Once the database instance is deployed, you need to grab the endpoint, a port number (1433), as well as the username and password to connect to the instance. Security Group inbound rules should 
 allow traffic for database ports 1433 and 5432, as shown below.
@@ -19,7 +19,7 @@ allow traffic for database ports 1433 and 5432, as shown below.
 
 ![img_10.png](Images/img_10.png)
 
-## 1 – Creating a SQL Server database table
+## 2 – Creating a SQL Server database table
 
 I use Azure Data Studio to connect to the SQL Server instance, create and populate a new database table. You can also use VS Code with SQL Server extensions or any other client tool of your choice. Run the following code to create a new database, enable CDC replication, create and populate a **Customers** table.
 
@@ -75,7 +75,7 @@ VALUES
 
 ```
 
-## 2 – Creating SQL Server table in SQL Stream Builder (SSB)
+## 3 – Creating SQL Server table in SQL Stream Builder (SSB)
 
 You need to let SSB know the source table to capture changes from. SSB comes with a set of templates that you can use to create various CDC tables, as shown below.
 Create a new job in SSB, click the Templates drop down menu and choose sqlserver-cdc. You can modify your table DDL based example below.
@@ -109,7 +109,7 @@ Run the code by executing an SSB job and verify that the new virtual table is cr
 
 ![img.png](Images/img_3.png)
 
-## 3 - Capturing Database Changes
+## 4 - Capturing Database Changes
 
 Once you've created a virtual CDC table, you can select from it by running a simple SELECT statement as an SSB job. When you update rows in the source SQL Server table or add new ones the changed rows will be visible in SSB UI, as shown below.
 Run the new job in SSB and proceed with changing data on the SQL Server side.
@@ -132,7 +132,7 @@ VALUES
 update Customers set Email='john_smith@gmail.com' where CustomerId=5;
 ```
 
-## 4 - Replicating Database Changes to Postgres
+## 5 - Replicating Database Changes to Postgres
 
 Now, let's create a target ***customers_replica*** Postgres table where we would replicate changes performed on the original MS SQL Server table. Logon to Postgres and run the following commands. You can use a Postgres client of your choice. 
 I'm using psql installed locally on my Mac. Another option would be to use PGADMIN or any other client tool of your choice.
@@ -235,7 +235,7 @@ delete from Customers where CustomerId=6;
 
 
 
-## 5 - Replicating Database Changes to Hive
+## 6 - Replicating Database Changes to Hive
 
 Create **customers_replica**  Hive table where we would replicate data changes to. I'm using Cloudera Datawarehouse (CDW) service to create a new Hive table, but you can use any Cloudera cluster. In CDW I can spin Hive or Impala virtual datawarehouse and access it via HUE. 
 Hive table should be transactional managed ACID compliant table to allow updates, deletes and inserts. You have to accept the default ORC data format, as described in [Cloudera Documentation](https://docs.cloudera.com/cdw-runtime/cloud/using-hiveql/topics/hive_create_a_crud_transactional_table.html) 
