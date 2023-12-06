@@ -1,11 +1,12 @@
 # MS SQL Server Change Data Capture (CDC) Demo
 
-MS SQL Server is one of the most popular databases in the corporate world. Cloudera's SQL Stream Builder/SSB product comes with several Debezium CDC connectors (for MS SQL Server, Postgres, Oracle and DB2) which allow capturing database changes, processing and routing those changes using Flink SQL into various target sinks including Postgres, MySQL, Hive, Kafka and etc. 
-The purpose of this demo is to setup Change Data Capture (CDC) Replication for MS SQL Server instance using SQL Stream Builder (SSB)/Flink and send those changes into Postgres and Hive. 
+MS SQL Server is one of the most popular databases in the corporate world. Cloudera's SQL Stream Builder (SSB) product comes with several Debezium CDC connectors (for MS SQL Server, Postgres, Oracle and DB2) which allow capturing database changes, processing and routing those changes using Flink SQL into various target sinks including Postgres, MySQL, Hive, Kafka and etc. 
+The purpose of this demo is setting Change Data Capture (CDC) Replication for MS SQL Server instance using SQL Stream Builder (SSB)/Flink and sending those changes to Postgres and Hive tables. 
 
-MS SQL Server and Postgres instances are running on AWS RDS (Relational Database service), while Flink/SQl Stream Builder and Hive are deployed on the Cloudera CDP Public Cloud. 
+MS SQL Server and Postgres instances are running on AWS RDS (Relational Database service), while Flink/SQl Stream Builder and Hive are deployed on the Cloudera Public Cloud environment on AWS. 
 
 The overall demo architecture is presented on the diagram below.
+
 ![img.png](Images/img_9.png)
 
 
@@ -72,14 +73,13 @@ VALUES
 
 ```
 
-## Lab 2 – Creating SQL Server table in SSB
+## Lab 2 – Creating SQL Server table in SQL Stream Builder (SSB)
 
 You need to let SSB know the source table to capture changes from. SSB comes with the set of templates that you can use to create various CDC tables as shown below.
 Create a new job in SSB, click the Templates drop down menu and choose sqlserver-cdc. You can modify you table DDL per example below.
 
 ![img_2.png](Images/img_2.png)
 
-  
 
 ```
 DROP TABLE IF EXISTS `customers_cdc`;
@@ -104,7 +104,8 @@ CREATE TABLE  `customers_cdc` (
 
 Run the code by executing the job and you should see the new virtual table definition as shown below.
 
-![img_3.png](Images/img_3.png)
+
+![img.png](Images/img_3.png)
 
 ## Lab 3 - Capturing Database Changes
 
@@ -113,7 +114,7 @@ Once you've created a virtual CDC table, you can select from it by running a sim
 
 ![img_4.png](Images/img_4.png)
 
-Run a few SQL commands in Azure Data Studio to update database rows or insert new ones. 
+Run a few SQL commands below in Azure Data Studio to insert and update database rows. 
 
 ```
 update Customers set Email='orlando23@gmail.com' where CustomerId=1;
@@ -155,7 +156,7 @@ OWNER to postgres;
 
 ```
 
-Let's create a virtual table in SSB using the following code. In SSB UI you can create a new job and use a "jdbc" Template. You can modify your table DDL per example below.
+Let's create a virtual JDBC table in SSB using the following code. In SSB UI you can create a new job and use a "jdbc" Template. You can modify your table DDL per example below.
 
 ```
 DROP TABLE IF EXISTS `customers_cdc_replica`;
@@ -201,11 +202,11 @@ insert into customers_cdc_replica select * from customers_cdc;
 
 ![img_6.png](Images/img_6.png)
 
-You should see database changes in the SSB UI and by selecting from the Postgres table itself.
+You should see database changes in the SSB UI and by selecting from the Postgres table.
 
-![img_7.png](Images/img_7.png)
+![img.png](Images/img_7.png)
 
-Let's update table records on the SQL Server side and observe changes in Postgres by selecting fromthe **customers_replica** table.
+Let's update table records on the SQL Server side and observe changes in Postgres by selecting from the **customers_replica** table.
 
 ```
 INSERT INTO dbo.Customers (
@@ -220,7 +221,7 @@ VALUES
 update Customers set Email='gary23@gmail.com' where CustomerId=6;
 ```
 
-![img_8.png](Images/img_8.png)
+![img.png](Images/img_8.png)
 
 Let's remove the row that was inserted above on the SQL Server side and check that the same row was deleted from Postgres.
 
@@ -228,7 +229,119 @@ Let's remove the row that was inserted above on the SQL Server side and check th
 delete from Customers where CustomerId=6;
 ```
 
-![img.png](Images/img.png)
+![img.png](Images/img_7.png)
+
+Once you've done stop the SSB INSERT/SELECT job.
 
 ## Lab 5 - Replicating Database Changes to Hive
 
+Let's create **customers_replica**  Hive table where we would replicate data changes to. I'm going to use Cloudera Datawarehouse (CDW) service to create a new Hive table. In CDW I can spin Hive or Impala virtual datawarehouse and access it via HUE. 
+Hive table should be transactional managed ACID compliant table to allow updates, deletes and inserts. You have to accept the default ORC data format as described in [Cloudera Documentation](https://docs.cloudera.com/cdw-runtime/cloud/using-hiveql/topics/hive_create_a_crud_transactional_table.html) 
+The code below will create a new Hive table and show it's DDL specifics.
+
+```
+create table customers_replica (customerid int, name string, location string, email string);
+
+--Get table DDL
+show create table customers_replica;
+
+    CREATE TABLE `customers_replica`(
+	  `customerid` int, 
+	  `name` string, 
+	  `location` string, 
+	  `email` string)
+	ROW FORMAT SERDE 
+	  'org.apache.hadoop.hive.ql.io.orc.OrcSerde' 
+	STORED AS INPUTFORMAT 
+	  'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat' 
+	OUTPUTFORMAT 
+	  'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'
+	LOCATION
+	  's3a://go01-demo/warehouse/tablespace/managed/hive/customers_replica'
+	TBLPROPERTIES (
+	  'bucketing_version'='2', 
+	  'transactional'='true', 
+	  'transactional_properties'='default', 
+	  'transient_lastDdlTime'='1701790844')
+
+```
+
+Let's create a virtual JDBC table in SSB using the following code. In SSB UI you can create a new job and use a "jdbc" Template. You can modify your table DDL per example below. 
+For CDW Virtual datawarehouses  JDBC end-point is readily available in the UI.
+
+![img.png](Images/img13.png)
+
+
+```
+DROP TABLE IF EXISTS `customers_cdc_replica`;
+CREATE TABLE  `customers_cdc_replica` (
+ `customerid` INT,
+  `name` VARCHAR(2147483647),
+  `location` VARCHAR(2147483647),
+  `email` VARCHAR(2147483647),
+   PRIMARY KEY (`customerid`) NOT ENFORCED
+) WITH (
+  'connector' = 'jdbc', -- Specify what connector to use, for JDBC it must be 'jdbc'.
+  'table-name' = 'customers_replica', -- The name of JDBC table to connect.
+  'url' = 'jdbc:hive2://hs2-default-hive-aws.<CDP_ENV_NAME>.ylcu-atmi.cloudera.site/default;transportMode=http;httpPath=cliservice;socketTimeout=60;ssl=true;retries=3;', -- The JDBC database URL.
+  -- 'connection.max-retry-timeout' = '1 min' -- Maximum timeout between retries. The timeout should be in second granularity and shouldn't be smaller than 1 second.
+  -- 'driver' = '...' -- The class name of the JDBC driver to use to connect to this URL, if not set, it will automatically be derived from the URL.
+  -- 'lookup.cache.max-rows' = '...' -- The max number of rows of lookup cache, over this value, the oldest rows will be expired. Lookup cache is disabled by default.
+  -- 'lookup.cache.ttl' = '...' -- The max time to live for each rows in lookup cache, over this time, the oldest rows will be expired. Lookup cache is disabled by default.
+  -- 'lookup.max-retries' = '3' -- The max retry times if lookup database failed.
+   'password' = '<CDP_user_password>', -- The JDBC password.
+  -- 'scan.auto-commit' = 'true' -- Sets the auto-commit flag on the JDBC driver, which determines whether each statement is committed in a transaction automatically. Some JDBC drivers, specifically Postgres, may require this to be set to false in order to stream results.
+  -- 'scan.fetch-size' = '0' -- The number of rows that should be fetched from the database when reading per round trip. If the value specified is zero, then the hint is ignored.
+  -- 'scan.partition.column' = '...' -- The column name used for partitioning the input.
+  -- 'scan.partition.lower-bound' = '...' -- The smallest value of the first partition.
+  -- 'scan.partition.num' = '...' -- The number of partitions.
+  -- 'scan.partition.upper-bound' = '...' -- The largest value of the last partition.
+  -- 'sink.buffer-flush.interval' = '1 s' -- The flush interval mills, over this time, asynchronous threads will flush data. Can be set to '0' to disable it. Note, 'sink.buffer-flush.max-rows' can be set to '0' with the flush interval set allowing for complete async processing of buffered actions.
+  -- 'sink.buffer-flush.max-rows' = '100' -- The max size of buffered records before flush. Can be set to zero to disable it.
+  -- 'sink.max-retries' = '3' -- The max retry times if writing records to database failed.
+  -- 'sink.parallelism' = '...' -- Defines the parallelism of the JDBC sink operator. By default, the parallelism is determined by the framework using the same parallelism of the upstream chained operator.
+  'username' = '<CDP_user>' -- The JDBC user name. 'username' and 'password' must both be specified if any of them is specified.
+);
+
+```
+Hive url parameter could vary depending on where your Cloudera software is running. For CDP base cluster I might use something like this to connect to Hive via JDBC.
+
+```
+'url' = 'jdbc:hive2://<Hive_server_dns>:10000/default;ssl=true;sslTrustStore=/var/lib/cloudera-scm-agent/agent-cert/cm-auto-global_truststore.jks;trustStorePassword=ATI2ST3anWQr6R0o8OPW3VIrj7a4RhsEy1c31HFlEd0;trustStoreType=jks;'
+```
+
+Now we're ready to replicate changes from SQL Server to Hive by running a simple INSERT/SELECT job in SSB UI. It could be the same job that you ran in the 
+
+```
+insert into customers_cdc_replica select * from customers_cdc;
+```
+
+Verify that data was replicated from SQL Server to Hive by running the following select in HUE.
+
+![img.png](Images/img11.png)
+
+
+Let's insert and update table records on the SQL Server side and observe changes in Postgres by selecting from the **customers_replica** table.
+
+```
+INSERT INTO dbo.Customers (
+   [CustomerId],
+   [Name],
+   [Location],
+   [Email]
+)
+VALUES
+   (6, 'Garry', 'Italy', '');
+
+update Customers set Email='gary23@gmail.com' where CustomerId=6;
+```
+
+Let's verify that the newly added row was replicated to Hive.
+
+![img.png](Images/img12.png)
+
+Let's remove the row that was inserted above on the SQL Server side and check that the same row was deleted from Hive.
+
+```
+delete from Customers where CustomerId=6;
+```
