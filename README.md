@@ -12,7 +12,7 @@ The overall demo architecture is presented on the diagram below.
 
 ## 1 - Deploying database servers
 
-It's very easy to deploy new database instances in Amazon RDS. Make sure that your database instances are Publicly Accessible. For SQL Server, Change Data Capture feature is only available in the Enterprise, Developer, Enterprise Evaluation, and Standard editions. Once the database instance is deployed, you need to grab the endpoint, a port number (1433), as well as the username and password to connect to the instance. Security Group inbound rules should 
+It's very easy to deploy new database instances in Amazon RDS. Make sure that your database instances are publicly accessible. For SQL Server, Change Data Capture feature is only available in the Enterprise, Developer, Enterprise Evaluation, and Standard editions. Once the database instance is deployed, you need to grab the endpoint, a port number (1433), as well as the username and password to connect to the instance. Security Group inbound rules should 
 allow traffic for database ports 1433 and 5432, as shown below.
 
 ![img.png](Images/img_14.png)
