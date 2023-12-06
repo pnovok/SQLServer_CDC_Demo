@@ -1,9 +1,9 @@
 # MS SQL Server Change Data Capture (CDC) Demo
 
 MS SQL Server is one of the most popular databases in the corporate world. Cloudera's SQL Stream Builder (SSB) product comes with several Debezium CDC connectors (for MS SQL Server, Postgres, Oracle and DB2) which allow capturing database changes, processing and routing those changes using Flink SQL into various target sinks including Postgres, MySQL, Hive, Kafka and etc. 
-The purpose of this demo is setting Change Data Capture (CDC) Replication for MS SQL Server instance using SQL Stream Builder (SSB)/Flink and sending those changes to Postgres and Hive tables. 
+The purpose of this demo is setting Change Data Capture (CDC) Replication for MS SQL Server instance using SQL Stream Builder (SSB)/Flink and sending database changes to Postgres and Hive tables. 
 
-MS SQL Server and Postgres instances are running on AWS RDS (Relational Database service), while Flink/SQl Stream Builder and Hive are deployed on the Cloudera Public Cloud environment on AWS. 
+MS SQL Server and Postgres instances are running on AWS RDS (Relational Database service), while Flink/SQL Stream Builder and Hive are deployed on the Cloudera Public Cloud environment on AWS. 
 
 The overall demo architecture is presented on the diagram below.
 
@@ -12,14 +12,16 @@ The overall demo architecture is presented on the diagram below.
 
 ## Deploying database servers
 
-It is fairly easy to deploy new database instances in Amazon RDS. Make sure that your database instances are Publicly Accessible. For SQL Server, Change Data Capture feature is only available in the Enterprise, Developer, Enterprise Evaluation, and Standard editions. Once the database instance is deployed, you need to note the endpoint, a port number (1433), as well as the username and password to connect to the instance. Security Group inbound rules should 
+It's very easy to deploy new database instances in Amazon RDS. Make sure that your database instances are Publicly Accessible. For SQL Server, Change Data Capture feature is only available in the Enterprise, Developer, Enterprise Evaluation, and Standard editions. Once the database instance is deployed, you need to grab the endpoint, a port number (1433), as well as the username and password to connect to the instance. Security Group inbound rules should 
 allow traffic for database ports 1433 and 5432, as shown below.
+
+![img.png](Images/img_14.png)
 
 ![img_10.png](Images/img_10.png)
 
-## Lab 1 – Creating a SQL Server database table
+## 1 – Creating a SQL Server database table
 
-I used Azure Data Studio to connect to the SQL Server instance, create and populate a new database table. You can also use VS Code with SQL Server extensions. The following code will create a new database, enable CDC replication, create and populate a **Customers** table.
+I use Azure Data Studio to connect to the SQL Server instance, create and populate a new database table. You can also use VS Code with SQL Server extensions or any other client tool of your choice. Run the following code to create a new database, enable CDC replication, create and populate a **Customers** table.
 
 ```
 USE master;
@@ -73,10 +75,10 @@ VALUES
 
 ```
 
-## Lab 2 – Creating SQL Server table in SQL Stream Builder (SSB)
+## 2 – Creating SQL Server table in SQL Stream Builder (SSB)
 
-You need to let SSB know the source table to capture changes from. SSB comes with the set of templates that you can use to create various CDC tables as shown below.
-Create a new job in SSB, click the Templates drop down menu and choose sqlserver-cdc. You can modify you table DDL per example below.
+You need to let SSB know the source table to capture changes from. SSB comes with a set of templates that you can use to create various CDC tables, as shown below.
+Create a new job in SSB, click the Templates drop down menu and choose sqlserver-cdc. You can modify your table DDL based example below.
 
 ![img_2.png](Images/img_2.png)
 
@@ -102,19 +104,19 @@ CREATE TABLE  `customers_cdc` (
 );
 ```
 
-Run the code by executing the job and you should see the new virtual table definition as shown below.
+Run the code by executing an SSB job and verify that the new virtual table is created, as shown below.
 
 
 ![img.png](Images/img_3.png)
 
-## Lab 3 - Capturing Database Changes
+## 3 - Capturing Database Changes
 
-Once you've created a virtual CDC table, you can select from it by running a simple SELECT statement in SSB job. When you change rows in the source SQL Server table or add new ones the changed rows will be visible in SSB UI, as shown below.
-
+Once you've created a virtual CDC table, you can select from it by running a simple SELECT statement as an SSB job. When you update rows in the source SQL Server table or add new ones the changed rows will be visible in SSB UI, as shown below.
+Run the new job in SSB and proceed with changing data on the SQL Server side.
 
 ![img_4.png](Images/img_4.png)
 
-Run a few SQL commands below in Azure Data Studio to insert and update database rows. 
+Run a few SQL statements below in Azure Data Studio to insert and update database rows. You should see the changed rows in SSB UI.
 
 ```
 update Customers set Email='orlando23@gmail.com' where CustomerId=1;
@@ -130,10 +132,10 @@ VALUES
 update Customers set Email='john_smith@gmail.com' where CustomerId=5;
 ```
 
-## Lab 4 - Replicating Database Changes to Postgres
+## 4 - Replicating Database Changes to Postgres
 
-Now, let's create a target ***customers_replica*** Postgres table where we would replicate changes performed on the original MS SQL Server table. Logon to Postgres and run the following commands. You can install a Postgres client of your choice. 
-I'm using psql installed locally on my Mac. Another option would be to use PGADMIN tool.
+Now, let's create a target ***customers_replica*** Postgres table where we would replicate changes performed on the original MS SQL Server table. Logon to Postgres and run the following commands. You can use a Postgres client of your choice. 
+I'm using psql installed locally on my Mac. Another option would be to use PGADMIN or any other client tool of your choice.
 
 ```
 psql -h <your-RDS-endpoint-for-postgres> -U postgres
@@ -156,7 +158,7 @@ OWNER to postgres;
 
 ```
 
-Let's create a virtual JDBC table in SSB using the following code. In SSB UI you can create a new job and use a "jdbc" Template. You can modify your table DDL per example below.
+Create a virtual JDBC table in SSB using the following code. In SSB UI you can create a new job and use a "jdbc" Template. You can modify your table DDL based on example below.
 
 ```
 DROP TABLE IF EXISTS `customers_cdc_replica`;
@@ -194,7 +196,7 @@ You should see the new table in SSB UI as shown below.
 
 ![img_5.png](Images/img_5.png)
 
-Now we're ready to replicate changes from SQL Server to Postgres by running a simple INSERT/SELECT job in SSB UI. Create and run a new job in SSB UI. 
+At this point we're ready to replicate changes from SQL Server to Postgres by running a simple INSERT/SELECT job in SSB UI. Create and run a new job in SSB UI. 
 
 ```
 insert into customers_cdc_replica select * from customers_cdc;
@@ -206,7 +208,7 @@ You should see database changes in the SSB UI and by selecting from the Postgres
 
 ![img.png](Images/img_7.png)
 
-Let's update table records on the SQL Server side and observe changes in Postgres by selecting from the **customers_replica** table.
+Update table records on the SQL Server side and observe changes in Postgres by selecting from the **customers_replica** table.
 
 ```
 INSERT INTO dbo.Customers (
@@ -223,7 +225,7 @@ update Customers set Email='gary23@gmail.com' where CustomerId=6;
 
 ![img.png](Images/img_8.png)
 
-Let's remove the row that was inserted above on the SQL Server side and check that the same row was deleted from Postgres.
+Delete the row that was inserted above on the SQL Server side and check that the same row was deleted from Postgres.
 
 ```
 delete from Customers where CustomerId=6;
@@ -231,13 +233,13 @@ delete from Customers where CustomerId=6;
 
 ![img.png](Images/img_7.png)
 
-Once you've done stop the SSB INSERT/SELECT job.
 
-## Lab 5 - Replicating Database Changes to Hive
 
-Let's create **customers_replica**  Hive table where we would replicate data changes to. I'm going to use Cloudera Datawarehouse (CDW) service to create a new Hive table. In CDW I can spin Hive or Impala virtual datawarehouse and access it via HUE. 
-Hive table should be transactional managed ACID compliant table to allow updates, deletes and inserts. You have to accept the default ORC data format as described in [Cloudera Documentation](https://docs.cloudera.com/cdw-runtime/cloud/using-hiveql/topics/hive_create_a_crud_transactional_table.html) 
-The code below will create a new Hive table and show it's DDL specifics.
+## 5 - Replicating Database Changes to Hive
+
+Create **customers_replica**  Hive table where we would replicate data changes to. I'm using Cloudera Datawarehouse (CDW) service to create a new Hive table, but you can use any Cloudera cluster. In CDW I can spin Hive or Impala virtual datawarehouse and access it via HUE. 
+Hive table should be transactional managed ACID compliant table to allow updates, deletes and inserts. You have to accept the default ORC data format, as described in [Cloudera Documentation](https://docs.cloudera.com/cdw-runtime/cloud/using-hiveql/topics/hive_create_a_crud_transactional_table.html) 
+Run the code below that will create a new Hive table and show it's DDL specifics.
 
 ```
 create table customers_replica (customerid int, name string, location string, email string);
@@ -266,15 +268,15 @@ show create table customers_replica;
 
 ```
 
-Let's create a virtual JDBC table in SSB using the following code. In SSB UI you can create a new job and use a "jdbc" Template. You can modify your table DDL per example below. 
+Create a virtual JDBC table in SSB using the following code. In SSB UI you can create a new job and use a "jdbc" Template. You can modify your table DDL per example below. 
 For CDW Virtual datawarehouses  JDBC end-point is readily available in the UI.
 
 ![img.png](Images/img13.png)
 
 
 ```
-DROP TABLE IF EXISTS `customers_cdc_replica`;
-CREATE TABLE  `customers_cdc_replica` (
+DROP TABLE IF EXISTS `customers_cdc_replica_hive`;
+CREATE TABLE  `customers_cdc_replica_hive` (
  `customerid` INT,
   `name` VARCHAR(2147483647),
   `location` VARCHAR(2147483647),
@@ -307,21 +309,21 @@ CREATE TABLE  `customers_cdc_replica` (
 Hive url parameter could vary depending on where your Cloudera software is running. For CDP base cluster I might use something like this to connect to Hive via JDBC.
 
 ```
-'url' = 'jdbc:hive2://<Hive_server_dns>:10000/default;ssl=true;sslTrustStore=/var/lib/cloudera-scm-agent/agent-cert/cm-auto-global_truststore.jks;trustStorePassword=ATI2ST3anWQr6R0o8OPW3VIrj7a4RhsEy1c31HFlEd0;trustStoreType=jks;'
+'url' = 'jdbc:hive2://<Hive_server_dns>:10000/default;ssl=true;sslTrustStore=/var/lib/cloudera-scm-agent/agent-cert/cm-auto-global_truststore.jks;trustStorePassword=<password>;trustStoreType=jks;'
 ```
 
-Now we're ready to replicate changes from SQL Server to Hive by running a simple INSERT/SELECT job in SSB UI. It could be the same job that you ran in the 
+Now we're ready to replicate changes from SQL Server to Hive by running a simple INSERT/SELECT job in SSB UI. 
 
 ```
-insert into customers_cdc_replica select * from customers_cdc;
+insert into customers_cdc_replica_hive select * from customers_cdc;
 ```
 
-Verify that data was replicated from SQL Server to Hive by running the following select in HUE.
+Verify that data was replicated from SQL Server to Hive by running the following SELECT in HUE.
 
 ![img.png](Images/img11.png)
 
 
-Let's insert and update table records on the SQL Server side and observe changes in Postgres by selecting from the **customers_replica** table.
+Insert and update table records on the SQL Server side and observe changes in Postgres by selecting from the **customers_replica** table.
 
 ```
 INSERT INTO dbo.Customers (
@@ -340,7 +342,7 @@ Let's verify that the newly added row was replicated to Hive.
 
 ![img.png](Images/img12.png)
 
-Let's remove the row that was inserted above on the SQL Server side and check that the same row was deleted from Hive.
+Delete the row that was inserted above on the SQL Server side and check that the same row was deleted from Hive.
 
 ```
 delete from Customers where CustomerId=6;
