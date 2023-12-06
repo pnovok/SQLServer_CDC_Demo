@@ -6,7 +6,7 @@
     "schema.1.data-type" : "VARCHAR(2147483647)",
     "schema.3.data-type" : "VARCHAR(2147483647)",
     "hostname" : "pnovoksh-sqlserver-db.cx9bqfeps2qo.us-east-2.rds.amazonaws.com",
-    "password" : "Cloudera123",
+    "password" : "${ssb.env.mypassword}",
     "debezium.snapshot.mode" : "initial",
     "connector" : "sqlserver-cdc",
     "schema.2.data-type" : "VARCHAR(2147483647)",
